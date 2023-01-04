@@ -1,0 +1,67 @@
+from django.shortcuts import render
+
+# Create your views here.
+from django.http import HttpResponse
+from rest_framework.response import Response
+from django.views import View
+from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.core import serializers
+import json
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+
+from .models import PredictArgs
+
+from .com.cisco.chat.model.lstm_model import *
+from .util import intent_to_output
+
+
+@csrf_exempt
+def index(request):
+    return HttpResponse("Hello, world. ")
+
+@method_decorator(csrf_exempt, name='dispatch')
+#@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+class ChatView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        obj = PredictArgs(key1='key',input='sfd',intent='sd')
+       # predict = obj.dict()
+        #data = json.dumps(predict)
+       # data = obj.json(exclude={'key1'})
+        data = obj.json()
+        return HttpResponse(data, content_type='application/json')
+
+    def post(self, request, *args, **kwargs):
+        print(request.headers)
+        print(request.query_params)
+        print(request.data)
+        obj = PredictArgs(**request.data)
+        predict = obj.dict()
+        print(predict)
+        data = json.dumps(predict)
+        print(data)
+        return HttpResponse(data, content_type='application/json')
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ChatBotView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        base_path = os.path.dirname(__file__)
+        abs_csv_file_path = os.path.join(base_path, 'bot.csv')
+        abs_model_file_path = os.path.join(base_path, "my_model")
+        train_model_with_input_file(abs_csv_file_path, 120, abs_model_file_path)
+        obj = PredictArgs(statusMessage='Training Successfully Completed')
+        data = obj.json(exclude_none=True)
+        return HttpResponse(data, content_type='application/json')
+
+    def post(self, request, *args, **kwargs):
+        obj = PredictArgs(**request.data)
+        base_path = os.path.dirname(__file__)
+        abs_model_file_path = os.path.join(base_path, "my_model")
+        prediction = predict(abs_model_file_path, obj.input)
+        obj = PredictArgs(input=obj.input, intent=prediction, output=intent_to_output[prediction])
+        data = obj.json(exclude_none=True)
+        return HttpResponse(data, content_type='application/json')

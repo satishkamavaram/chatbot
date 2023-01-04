@@ -1,0 +1,6 @@
+intent,output
+greeting,"Hello, I am API bot, how can I help you"
+api,"getdevices,getdevicebyid"
+getdevices,getdevices
+getdevicebyid,getdevicebyId
+noanswer,I don't understand what you are saying. I am API bot
