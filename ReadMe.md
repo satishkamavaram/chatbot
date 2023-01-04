@@ -1,6 +1,6 @@
-#Exposes REST API for training the chatbot model and do the prediction using Tensorflow
+# Exposes REST API for training the chatbot model and do the prediction using Tensorflow
 
-##APIs
+## APIs
 * For training model: http://localhost:8000/chat/bot GET 
 * For prediction: http://localhost:8000/chat/bot POST { "input": "getdevices" }
 
