@@ -5,7 +5,7 @@ import os
 import json
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
-from chat_app.com.cisco.chat.utils.utils import *
+from chat_app.com.api.chat.utils.utils import *
 import keras.engine
 
 
@@ -16,7 +16,14 @@ class MODEL_HYPER_PARAMS:
     MAXLEN = 120
     PADDING = 'post'
     OOV_TOKEN = "<OOV>"
-    TRAINING_SPLIT = .9
+    TRAINING_SPLIT = 1.0
+
+
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        if (logs.get('accuracy') > 0.96 and logs.get('accuracy') <= 0.99):
+            print("\nReached greater than 96.0% and less than 98.0% accuracy so cancelling training!")
+            self.model.stop_training = True
 
 
 class Model:
@@ -61,8 +68,9 @@ def read_and_pre_process(sentences, labels):
     return train_padded_seq, val_padded_seq, train_label_seq, val_label_seq, tokenizer, label_tokenizer
 
 
-def create_model(num_words, embedding_dim, maxlen):
+def create_model(num_words, embedding_dim, maxlen, total_labels):
     tf.random.set_seed(123)
+    print(num_words)
     model = tf.keras.Sequential([
         tf.keras.layers.Embedding(num_words, embedding_dim, input_length=maxlen),
         # tf.keras.layers.GlobalAveragePooling1D(),
@@ -73,7 +81,7 @@ def create_model(num_words, embedding_dim, maxlen):
         tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(64, activation='relu'),
         # tf.keras.layers.Dense(1, activation='sigmoid')
-        tf.keras.layers.Dense(5, activation='softmax')
+        tf.keras.layers.Dense(total_labels, activation='softmax')
     ])
 
     model.compile(loss='sparse_categorical_crossentropy',
@@ -100,24 +108,29 @@ def train_model_sentence_label(sentences, labels, epochs: int = 120, save_model_
 
 def train_model(train_padded_seq, val_padded_seq, train_label_seq, val_label_seq, sentence_tokenizer, label_tokenizer,
                 epochs: int = 120, save_model_path: str = None):
-    model = create_model(MODEL_HYPER_PARAMS.NUM_WORDS, MODEL_HYPER_PARAMS.EMBEDDING_DIM, MODEL_HYPER_PARAMS.MAXLEN)
+    print(f'label_tokenizer: {label_tokenizer.word_index.items()}')
+    print(f'label_tokenizer: {len(label_tokenizer.word_index.items())}')
+    total_labels = len(label_tokenizer.word_index.items())
+    model = create_model(MODEL_HYPER_PARAMS.NUM_WORDS, MODEL_HYPER_PARAMS.EMBEDDING_DIM, MODEL_HYPER_PARAMS.MAXLEN,
+                         total_labels)
     print(epochs)
     print(train_padded_seq)
     print(train_label_seq)
     print(val_padded_seq)
     print(val_label_seq)
+    callbacks = myCallback()
     history = model.fit(train_padded_seq, train_label_seq, epochs=epochs,
-                        validation_data=(val_padded_seq, val_label_seq), verbose=2)
+                        validation_data=(val_padded_seq, val_label_seq), verbose=2, callbacks=callbacks)
 
     acc = history.history['accuracy']
     loss = history.history['loss']
-    global cache_model
-    cache_model = Model(model, sentence_tokenizer, label_tokenizer)
+    # global cache_model
+    model_obj = Model(model, sentence_tokenizer, label_tokenizer)
     if save_model_path is not None:
         model.save(save_model_path)
         save_tokenizer_to_json(sentence_tokenizer, save_model_path, "tokenizer_sentence.json")
         save_tokenizer_to_json(label_tokenizer, save_model_path, "tokenizer_label.json")
-    return model
+    return model_obj
 
 
 def load_model(save_model_path: str = None):
@@ -125,6 +138,14 @@ def load_model(save_model_path: str = None):
     sentence_tokenizer = load_tokenizer_from_json(save_model_path, "tokenizer_sentence.json")
     label_tokenizer = load_tokenizer_from_json(save_model_path, "tokenizer_label.json")
     return model, sentence_tokenizer, label_tokenizer
+
+
+def load_saved_model(save_model_path: str = None):
+    model = tf.keras.models.load_model(save_model_path)
+    sentence_tokenizer = load_tokenizer_from_json(save_model_path, "tokenizer_sentence.json")
+    label_tokenizer = load_tokenizer_from_json(save_model_path, "tokenizer_label.json")
+    saved_model = Model(model, sentence_tokenizer, label_tokenizer)
+    return saved_model
 
 
 def save_tokenizer_to_json(tokenizer: Tokenizer, save_model_path: str, json_file: str):
@@ -138,17 +159,20 @@ def load_tokenizer_from_json(save_model_path: str, json_file: str):
         data = json.load(f)
         return tf.keras.preprocessing.text.tokenizer_from_json(data)
 
+
 def assign_to_model(model, sentence_tokenizer, label_tokenizer):
     global cache_model
     cache_model = Model(model, sentence_tokenizer, label_tokenizer)
 
-def predict(save_model_path, input_sentence):
+
+# def predict(save_model_path, input_sentence):
+def predict(cache_model, input_sentence):
     print("start")
-    if cache_model is None:
-        model, sentence_tokenizer, label_tokenizer = load_model(save_model_path)
-        assign_to_model(model, sentence_tokenizer, label_tokenizer )
-    else:
-        model, sentence_tokenizer, label_tokenizer = cache_model.model, cache_model.sentence_tokenizer, cache_model.label_tokenizer
+    # if cache_model is None:
+    #    model, sentence_tokenizer, label_tokenizer = load_model(save_model_path)
+    #    assign_to_model(model, sentence_tokenizer, label_tokenizer )
+    # else:
+    model, sentence_tokenizer, label_tokenizer = cache_model.model, cache_model.sentence_tokenizer, cache_model.label_tokenizer
 
     print("end")
     label_tokenizer_swap = {v: k for k, v in label_tokenizer.word_index.items()}
@@ -161,10 +185,10 @@ def predict(save_model_path, input_sentence):
     predicted_index = np.argmax(prediction)
     print(f'Prediction max index: {predicted_index}')
     print(f'Prediction max index value {prediction[0][predicted_index]}')
-   # if prediction[0][predicted_index] <= 0.8:
-   #     print("Predicted label: I don't understand what you are saying. I am API bot")
-   #     return "I don't understand what you are saying. I am API bot"
-   # else:
+    # if prediction[0][predicted_index] <= 0.8:
+    #     print("Predicted label: I don't understand what you are saying. I am API bot")
+    #     return "I don't understand what you are saying. I am API bot"
+    # else:
     print(f'Predicted label: {label_tokenizer_swap.get(predicted_index + 1)}')
     return label_tokenizer_swap.get(predicted_index + 1)
 
