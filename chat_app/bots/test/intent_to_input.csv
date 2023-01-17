@@ -1,0 +1,35 @@
+intent,utterance
+greeting,hi
+greeting,Is anyone there?
+greeting,good day
+greeting,good morning
+api,I want to explore apis
+api,I want to play apis
+api,what apis i can explore
+api,What help you provide?
+getdevices,getdevices
+getdevices,getdevice
+getdevices,getdevice
+getdevices,I want to know how many devices are there in bpa
+getdevicebyId,which api to use for getting device details
+getdevicebyId,getdevicebyId
+getdevicebyId,getdevicesbyId
+noanswer,
+greeting,hi there
+api,I want to play with apis
+api,api
+api,apis
+api,bpa
+greeting,hello
+api,What you can do?
+getdevicebyId,how to get individual device details
+getdevices,how many devices are there in bpa
+greeting,Is anyone there?
+greeting,good day
+getdevices,getdevice
+getdevices,I want to know how many devices are there in bpa
+getdevicebyId,getdevicesbyId
+api,What help you provide?
+api,What you can do?
+api,what apis i can explore
+getdevicebyId,which api to use for getting device details

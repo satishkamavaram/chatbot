@@ -1,0 +1,6 @@
+intent,output,has_slots,next_intent
+greeting,"Hello, I am API bot, how can I help you",False,api
+api,"getdevices,getdevicebyid",False,
+getdevices,getdevices,False,api
+getdevicebyid,getdevicebyId,False,api
+noanswer,I don't understand what you are saying. I am API bot,False,api

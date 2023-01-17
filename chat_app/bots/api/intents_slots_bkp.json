@@ -1,0 +1,414 @@
+{
+    "apis": [
+        {
+            "intent": "getexecutions",
+            "apiName": "getExecutions",
+            "apiDesc": "Get list of executions",
+            "httpMethod": "get",
+            "uri": "/script/executions",
+            "slots": [
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "limit",
+                    "question": "Please enter limit(limit)",
+                    "validationFunction": "validate_limit",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "page",
+                    "question": "Please enter page(page)",
+                    "validationFunction": "validate_page",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getexecutionsperidscriptkeyexecutions",
+            "apiName": "getExecutionsPerId/script/<key>/executions",
+            "apiDesc": "Get executions by key",
+            "httpMethod": "get",
+            "uri": "/script/{key}/executions",
+            "slots": [
+                {
+                    "paramName": "key",
+                    "question": "Please enter key(key)",
+                    "validationFunction": "validate_key",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "String",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getexecutionsperidscriptkeyexecutionsversionintversion",
+            "apiName": "getExecutionsPerId/script/<key>/executions/version/<intVersion>",
+            "apiDesc": "Get executions by key",
+            "httpMethod": "get",
+            "uri": "/script/{key}/executions/version/{version}",
+            "slots": [
+                {
+                    "paramName": "key",
+                    "question": "Please enter key(key)",
+                    "validationFunction": "validate_key",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "version",
+                    "question": "Please enter version(version)",
+                    "validationFunction": "validate_version",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "Integer",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getexecutionsperstate",
+            "apiName": "getExecutionsPerState",
+            "apiDesc": "Get list of executions filtered based on state",
+            "httpMethod": "get",
+            "uri": "/script/executions/state/{state}",
+            "slots": [
+                {
+                    "paramName": "state",
+                    "question": "Please enter state(state)",
+                    "validationFunction": "validate_state",
+                    "mandatory": true,
+                    "defaultValue": "state",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "limit",
+                    "question": "Please enter limit(limit)",
+                    "validationFunction": "validate_limit",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "page",
+                    "question": "Please enter page(page)",
+                    "validationFunction": "validate_page",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getexecutionssummary",
+            "apiName": "getExecutionsSummary",
+            "apiDesc": "Get executions summary by state and status",
+            "httpMethod": "get",
+            "uri": "/script/executions/summary",
+            "slots": [
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getexecutionssummarybytenant",
+            "apiName": "getExecutionsSummaryByTenant",
+            "apiDesc": "Get executions summary by tenants",
+            "httpMethod": "get",
+            "uri": "/script/executions/summary/tenant",
+            "slots": [
+                {
+                    "paramName": "id",
+                    "question": "Please enter id(id)",
+                    "validationFunction": "validate_id",
+                    "mandatory": false,
+                    "defaultValue": "123",
+                    "dataType": "String",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getlogstagesperexecution",
+            "apiName": "getLogStagesPerExecution",
+            "apiDesc": "Get logs stages",
+            "httpMethod": "get",
+            "uri": "/script/executions/logs/{uuid_str}/stages",
+            "slots": [
+                {
+                    "paramName": "uuid_str",
+                    "question": "Please enter uuid_str(uuid_str)",
+                    "validationFunction": "validate_uuid_str",
+                    "mandatory": true,
+                    "defaultValue": "uuid_str",
+                    "dataType": "String",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getlogsperexecution",
+            "apiName": "getLogsPerExecution",
+            "apiDesc": "Get execution logs",
+            "httpMethod": "get",
+            "uri": "/script/executions/logs/{uuid_str}",
+            "slots": [
+                {
+                    "paramName": "uuid_str",
+                    "question": "Please enter uuid_str(uuid_str)",
+                    "validationFunction": "validate_uuid_str",
+                    "mandatory": true,
+                    "defaultValue": "uuid_str",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "stage",
+                    "question": "Please enter stage(stage)",
+                    "validationFunction": "validate_stage",
+                    "mandatory": false,
+                    "defaultValue": "1",
+                    "dataType": "String",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "limit",
+                    "question": "Please enter limit(limit)",
+                    "validationFunction": "validate_limit",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "page",
+                    "question": "Please enter page(page)",
+                    "validationFunction": "validate_page",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getoutputvarsperexecution",
+            "apiName": "getOutputVarsPerExecution",
+            "apiDesc": "Get execution output variables by UUID",
+            "httpMethod": "get",
+            "uri": "/script/executions/outputvars/{uuid_str}",
+            "slots": [
+                {
+                    "paramName": "uuid_str",
+                    "question": "Please enter uuid_str(uuid_str)",
+                    "validationFunction": "validate_uuid_str",
+                    "mandatory": true,
+                    "defaultValue": "uuid_str",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getstatus",
+            "apiName": "getStatus",
+            "apiDesc": "Get execution status by UUID",
+            "httpMethod": "get",
+            "uri": "/script/executions/status/{uuid_str}",
+            "slots": [
+                {
+                    "paramName": "uuid_str",
+                    "question": "Please enter uuid_str(uuid_str)",
+                    "validationFunction": "validate_uuid_str",
+                    "mandatory": true,
+                    "defaultValue": "uuid_str",
+                    "dataType": "String",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getgetscripts",
+            "apiName": "getGetScripts",
+            "apiDesc": "Get list of scripts",
+            "httpMethod": "get",
+            "uri": "/scripts",
+            "slots": [
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "limit",
+                    "question": "Please enter limit(limit)",
+                    "validationFunction": "validate_limit",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                },
+                {
+                    "paramName": "page",
+                    "question": "Please enter page(page)",
+                    "validationFunction": "validate_page",
+                    "mandatory": false,
+                    "defaultValue": "10",
+                    "dataType": "Integer",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getgetpackagebyidandversion",
+            "apiName": "getGetPackageByIdAndVersion",
+            "apiDesc": "Download package by key and version",
+            "httpMethod": "get",
+            "uri": "/script/package/{key}/version/{version}",
+            "slots": [
+                {
+                    "paramName": "key",
+                    "question": "Please enter key(key)",
+                    "validationFunction": "validate_key",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "version",
+                    "question": "Please enter version(version)",
+                    "validationFunction": "validate_version",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "Integer",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getscriptbyid",
+            "apiName": "getScriptById",
+            "apiDesc": "Get script by key and version",
+            "httpMethod": "get",
+            "uri": "/script/{key}/version/{version}",
+            "slots": [
+                {
+                    "paramName": "key",
+                    "question": "Please enter key(key)",
+                    "validationFunction": "validate_key",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "String",
+                    "type": "path_param"
+                },
+                {
+                    "paramName": "version",
+                    "question": "Please enter version(version)",
+                    "validationFunction": "validate_version",
+                    "mandatory": true,
+                    "defaultValue": "1",
+                    "dataType": "Integer",
+                    "type": "path_param"
+                }
+            ]
+        },
+        {
+            "intent": "getscriptanalyze",
+            "apiName": "getScriptAnalyze",
+            "apiDesc": "Analyze executions to purge",
+            "httpMethod": "get",
+            "uri": "/data/analyze",
+            "slots": []
+        },
+        {
+            "intent": "getexternalscriptrepo",
+            "apiName": "getExternalScriptRepo",
+            "apiDesc": "Get list of script repositories",
+            "httpMethod": "get",
+            "uri": "/script/repo",
+            "slots": [
+                {
+                    "paramName": "filter",
+                    "question": "Please enter filter(filter)",
+                    "validationFunction": "validate_filter",
+                    "mandatory": false,
+                    "defaultValue": "filter",
+                    "dataType": "String",
+                    "type": "query_param"
+                }
+            ]
+        },
+        {
+            "intent": "getabout",
+            "apiName": "getAbout",
+            "apiDesc": "Get about and version details",
+            "httpMethod": "get",
+            "uri": "/script/about",
+            "slots": []
+        },
+        {
+            "intent": "gethealth",
+            "apiName": "getHealth",
+            "apiDesc": "Get health",
+            "httpMethod": "get",
+            "uri": "/script/health",
+            "slots": []
+        },
+        {
+            "intent": "getscripttypes",
+            "apiName": "getScriptTypes",
+            "apiDesc": "Get supported script types",
+            "httpMethod": "get",
+            "uri": "/script/types",
+            "slots": []
+        }
+    ]
+}
