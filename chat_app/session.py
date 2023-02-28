@@ -15,6 +15,21 @@ class Type(Enum):
     SLOT = 'slot'
 
 
+class Rest_Api:
+    path_params: Dict[str, str]
+    query_params: Dict[str, str]
+    headers: Dict[str, str]
+    payload: str
+    uri: str
+
+    def __init__(self, uri, path_params: Dict = {}, query_params: Dict = {}, headers: Dict = {}, payload=None):
+        self.uri = uri
+        self.path_params = path_params
+        self.query_params = query_params
+        self.headers = headers
+        self.payload = payload
+
+
 class CurrentSlot:
     slotNo: int  # intent or slot
     slotName: str  # name of the slot
@@ -61,11 +76,14 @@ class Session:
     session_id: str
     intent: Intent
     dialog_action: DialogAction
+    rest_api: Rest_Api
 
-    def __init__(self, session_id, intent, dialog_action):
+    def __init__(self, session_id, intent, dialog_action, rest_api: Rest_Api):
         self.self = self
+        self.session_id = session_id
         self.intent = intent
         self.dialog_action = dialog_action
+        self.rest_api = rest_api
 
 # def __init__(self, **kwargs):
 #     super().__init__(**kwargs)
@@ -84,3 +102,6 @@ def get_unique_session_id():
 
 def save_session(session_id: str, session: Session):
     _session_cache[session_id] = session
+
+def remove_session(session_id: str):
+    _session_cache.pop(session_id, None)
