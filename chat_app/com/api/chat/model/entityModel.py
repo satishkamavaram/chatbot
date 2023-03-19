@@ -2,16 +2,12 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-#from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-#from tensorflow.keras import Model, Input
-#from tensorflow.keras.layers import LSTM, Embedding, Dense
-#from tensorflow.keras.layers import TimeDistributed, SpatialDropout1D, Bidirectional
 import keras.engine
 import io
 import os
 import json
 from dataclasses import dataclass
+import re
 
 
 @dataclass
@@ -41,7 +37,8 @@ class SentenceGetter(object):
 
 class myCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
-        if (logs.get('accuracy') >= 1.0 and logs.get('accuracy') <= 1.0):
+        print(logs.get('accuracy'))
+        if logs.get('accuracy') >= 0.9999: #and logs.get('accuracy') <= 1.0):
             print("\nReached 1.0% accuracy so cancelling training!")
             self.model.stop_training = True
 
@@ -126,7 +123,7 @@ def train_model(X, y, word2idx: dict, tag2idx: dict, words:list, tags: list,
         y=y,
         batch_size=MODEL_HYPER_PARAMS.BATCH_SIZE,
         epochs=epochs,
-        callbacks=callbacks,
+      #  callbacks=callbacks,
         verbose=1
     )
     # global cache_model
@@ -165,12 +162,24 @@ def load_saved_model(save_model_path: str = None):
     saved_model = Model(model, word2idx, tag2idx, words, tags)
     return saved_model
 
-def predict(cache_model, input):
+def preprocess(sentence):
+    sentence = sentence.lower()
+    characters_to_remove = ",-/?."
+    regex_pattern = "[" + re.escape(characters_to_remove) + "]"
+    sentence = re.sub(regex_pattern, " ", sentence)
+    sentence = sentence.replace("'s", "")
+    sentence = sentence.replace("hours","hr")
+    sentence = sentence.replace("hrs", "hr")
+   # print(sentence)
+    return sentence
+
+def predict(cache_model, input,entities):
     #print("start")
     model, word2idx, tag2idx, words, tags= cache_model.model, cache_model.word2idx, cache_model.tag2idx, cache_model.words, cache_model.tags
 
     input_x = [[word2idx[w] if w in word2idx else len(words) - 1 for w in
-                input.lower().split()]]
+                preprocess(input).split()]]
+                #input.lower().split()]]
     input_x = pad_sequences(maxlen=MODEL_HYPER_PARAMS.MAXLEN, sequences=input_x, padding=MODEL_HYPER_PARAMS.PADDING, value=len(words) - 1)
    # print(input_x[0])
     p = model.predict(np.array([input_x[0]]))
@@ -178,41 +187,146 @@ def predict(cache_model, input):
    # print(p[0])
    # print(tag2idx)
     # tag2idx_swap = {v: k for k, v in tag2idx.items()}
-    entities = ['time', 'unit']
-    time_index = tag2idx.get('time')
+    #entities = ['time', 'unit']
+    #time_index = tag2idx.get('time')
     #print(time_index)
-    #print(tags)
+   # print(tags)
+   # print(p[0])
+   # print(input_x[0])
     dict_entities = {}
     for w, pred in zip(input_x[0], p[0]):
-        if (tags[pred] in entities and tags[pred] not in dict_entities):
-            #print(words[w - 1], tags[pred])
-            dict_entities[tags[pred]] = words[w - 1]
+        if (tags[pred] in entities):
+             if tags[pred] not in dict_entities:
+                dict_entities[tags[pred]] = [words[w - 1]]
+             else:
+                dict_entities[tags[pred]].append(words[w - 1])
 
-    print(dict_entities)
+    print(input,' ',dict_entities)
+    return dict_entities
+
+if __name__ == '__main__1':
+    print(preprocess("Today'S yesterday's jan,2nd   2022 2022-01-22 04/4/2023"))
+    base_path = os.path.dirname(__file__)
+    print(base_path)
+    abs_csv_file_path = os.path.join(base_path, 'input_data.csv')
+    abs_model_file_path = os.path.join(base_path, "report_model")
+    # train_model_with_input_file(abs_csv_file_path, 10, abs_model_file_path)
+    model = load_saved_model(abs_model_file_path)
+    entities = ['state', 'time', 'unit', 'month', 'year']
+    input = "today's report"
+    predict(model, input, entities)
 
 if __name__ == '__main__':
     base_path = os.path.dirname(__file__)
     print(base_path)
     abs_csv_file_path = os.path.join(base_path, 'input_data.csv')
     abs_model_file_path = os.path.join(base_path, "report_model")
-    # train_model_with_input_file(abs_csv_file_path, 500, abs_model_file_path)
+    #train_model_with_input_file(abs_csv_file_path, 10, abs_model_file_path)
     model = load_saved_model(abs_model_file_path)
+    entities = ['state', 'time', 'unit', 'month', 'year']
     input = 'get last 1 month report'
-    predict(model, input)
+    predict(model, input, entities)
     input = 'give me report for last month'
-    predict(model, input)
+    predict(model, input, entities)
     input = 'give me feb report'
-    predict(model, input)
+    predict(model, input, entities)
     input = 'twenty report'
-    predict(model, input)
+    predict(model, input, entities)
     input = 'can you please generate five month report'
-    predict(model, input)
+    predict(model, input, entities)
     input = 'hello, pls generate JANUARY report'
-    predict(model, input)
+    predict(model, input, entities)
+    input = 'i, pls generate report'
+    predict(model, input, entities)
+    input = 'generate report for 2 jan 2021'
+    predict(model, input, entities)
+    input = 'give me report for 21 February 2021'
+    predict(model, input, entities)
+    input = 'give me report betwen 21 February 2021 to 22 apr 2021'
+    predict(model, input, entities)
+    input = 'give me current month report'
+    predict(model, input, entities)
+    input = 'give me last yr report'
+    predict(model, input, entities)
+    input = 'generate report between 1 jan 2022 and 29 jun 2022 report'
+    predict(model, input, entities)
+    input = 'generate report from 1 jan 2022 to 29 jun 2022 report'
+    predict(model, input, entities)
+    input = 'generate report from 1 12 2022 to 01 06 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 1 12 2022 to 1 6 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 2022 06 12 to 2022 07 13 report'
+    predict(model, input, entities)
+    input = 'generate report from 2022 08 12 to 2023 05 21 report'
+    predict(model, input, entities)
+    input = 'generate report from march 2022 to june 2022 report'
+    predict(model, input, entities)
+    input = 'generate report from july 2022 to november 2022 report'
+    predict(model, input, entities)
+    input = 'generate report from sep 2022 to april 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from may 2022 to aug 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from oct 2022 to nov 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 2nd sep 2022 to 4th nov 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 8th june 2022 to 1st july 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 3rd may 2022 to 5th dec 2023 report'
+    predict(model, input, entities)
+    input = 'report from january 2021 to september 2022 report'
+    predict(model, input, entities)
+    input = 'report from jul to december'
+    predict(model, input, entities)
+    input = 'report from nov 2020 to august 2020'
+    predict(model, input, entities)
+    input = 'give me report from 2021 02 22 to 2023 08 30 report'
+    predict(model, input, entities)
+    input = 'give me report from 2023 04 22 to 2023 9 20 report'
+    predict(model, input, entities)
+    input = 'generate report from 12 17 2023 to 03 04 2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 1 8 2023 to 03 10 2023 report'
+    predict(model, input, entities)
+    input = 'today report'
+    predict(model, input, entities)
+    input = "today's report"
+    predict(model, input, entities)
+    input = 'yesterday report'
+    predict(model, input, entities)
+    input = "report for today's"
+    predict(model, input, entities)
+    input = "report for yesterday's"
+    predict(model, input, entities)
+    input = 'generate report from 10-9-2023 to 08-7-2023'
+    predict(model, input, entities)
+    input = 'generate report from 12-27-2022 to 11-17-2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 9/5/2022 to 8/7/2023'
+    predict(model, input, entities)
+    input = 'generate report from 6/15/2021 to 04/07/2022 report'
+    predict(model, input, entities)
+    input = 'generate report from 03/05/2022 to 02/19/2023'
+    predict(model, input, entities)
+    input = 'generate report from 01/01/2023 to 01/31/2023 report'
+    predict(model, input, entities)
+    input = 'generate report from 2023/02/01 to 2023/02/28'
+    predict(model, input, entities)
+    input = 'report for last 4 hours'
+    predict(model, input, entities)
+    input = 'report for last 4 hour'
+    predict(model, input, entities)
+    input = 'report for last 8 hrs'
+    predict(model, input, entities)
+    input = 'last 8 years'
+    predict(model, input, entities)
 
 
-
-
+# remove ,'-/ with spaces
+# remove extra space
+# train with todays yesterdays data
 """
 data = pd.read_csv("/Users/sakamava/work/tensorflow/django/chatbot/chat_app/bots/report/input_data.csv")
 data = data.fillna(method="ffill")
