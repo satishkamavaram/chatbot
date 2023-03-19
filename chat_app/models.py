@@ -2,6 +2,7 @@ from django.db import models
 from pydantic import BaseModel, Extra,Field
 from typing import Optional
 from collections import namedtuple
+import json
 
 
 class Slot:
@@ -21,13 +22,14 @@ class Slot:
 
 class Api:
     def __init__(self, intent: str, apiName: str, apiDesc: str, httpMethod: str, uri: str,
-                 slots: Optional[list[Slot]] = []) -> None:
+                 slots: Optional[list[Slot]] = [], requestBody: Optional[dict] = None) -> None:
         self.intent = intent
         self.apiName = apiName
         self.apiDesc = apiDesc
         self.httpMethod = httpMethod
         self.uri = uri
         self.slots = slots
+        self.requestBody = json.load(requestBody) if requestBody is not None else None
 
 
 class Apis:
