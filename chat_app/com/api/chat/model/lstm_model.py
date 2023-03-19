@@ -17,6 +17,7 @@ class MODEL_HYPER_PARAMS:
     PADDING = 'post'
     OOV_TOKEN = "<OOV>"
     TRAINING_SPLIT = 1.0
+    BATCH_SIZE = 100
 
 
 class myCallback(tf.keras.callbacks.Callback):
@@ -83,7 +84,6 @@ def create_model(num_words, embedding_dim, maxlen, total_labels):
         # tf.keras.layers.Dense(1, activation='sigmoid')
         tf.keras.layers.Dense(total_labels, activation='softmax')
     ])
-
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
@@ -118,8 +118,14 @@ def train_model(train_padded_seq, val_padded_seq, train_label_seq, val_label_seq
     print(train_label_seq)
     print(val_padded_seq)
     print(val_label_seq)
+    print(len(train_padded_seq))
     callbacks = myCallback()
+   # history = model.fit(train_padded_seq, train_label_seq, epochs=epochs, steps_per_epoch=(len(train_padded_seq)/MODEL_HYPER_PARAMS.BATCH_SIZE),
+   #                     validation_data=(val_padded_seq, val_label_seq), verbose=2, callbacks=callbacks)
+    #history = model.fit(train_padded_seq, train_label_seq, epochs=epochs,
+    #                    validation_data=(val_padded_seq, val_label_seq), verbose=2, callbacks=callbacks)
     history = model.fit(train_padded_seq, train_label_seq, epochs=epochs,
+                        batch_size=MODEL_HYPER_PARAMS.BATCH_SIZE,
                         validation_data=(val_padded_seq, val_label_seq), verbose=2, callbacks=callbacks)
 
     acc = history.history['accuracy']
