@@ -76,7 +76,11 @@ class ChatBotView(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False, url_path='')
     def post(self, request, *args, **kwargs):
         obj = PredictArgs(**request.data)
-        return process_bot_input(obj)
+        if obj.botId == 'report':
+            data = process_report_bot_input(obj)
+        else:
+            data = process_bot_input(obj)
+        return HttpResponse(data, content_type='application/json')
 
 """   
         base_path = os.path.join(os.path.dirname(__file__), 'bots', obj.botId)
