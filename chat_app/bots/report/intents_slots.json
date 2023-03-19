@@ -1,0 +1,13 @@
+{
+    "apis": [
+        {
+            "intent": "processinstances",
+            "apiName": "processinstances",
+            "apiDesc": "Workflow history process instances",
+            "httpMethod": "post",
+            "uri": "/api/v1.0/workflow/history/process-instances/get",
+            "slots": [],
+            "requestBody": "{{\"startedAfter\": \"{start_date}\", \"startedBefore\": \"{end_date}\"}}"
+        }
+    ]
+}
