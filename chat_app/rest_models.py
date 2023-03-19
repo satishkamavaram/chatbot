@@ -1,6 +1,7 @@
 from django.db import models
 from pydantic import BaseModel, Extra,Field
-from typing import Optional
+from typing import Optional, Any
+
 
 # Create your models here.
 class ModelArgs(BaseModel, extra=Extra.forbid):
@@ -33,9 +34,10 @@ class PredictArgs(BotArgs):
         return self.input
 
 class Message(BaseModel):
-    content: str = None
+    content: Any = None
     content_type: str = "plain/text"
     defautValue: Optional[str] = None
+    mandatory: Optional[str] = None
     listOfPossibleValues: Optional[list] = None
 
 
@@ -44,6 +46,7 @@ class BotResponseArgs(BotArgs):
     intent: Optional[str] = None
     messages: list[Message] = None
     sessionId: Optional[str] = None
+    additionalInfo: Optional[dict] = None
 
     def __str__(self):
         return self.input
